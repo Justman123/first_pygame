@@ -12,15 +12,15 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Pang!")
 
 # 배경 만들기
-background = pygame.image.load("pygame_project/images/background.png")
+background = pygame.image.load("images/background.png")
 
 # 스테이지 만들기
-stage = pygame.image.load("pygame_project/images/stage.png")
+stage = pygame.image.load("images/stage.png")
 stage_size = stage.get_rect().size
 stage_height = stage_size[1]
 
 #캐릭터 만들기
-character = pygame.image.load("pygame_project/images/character.png")
+character = pygame.image.load("images/character.png")
 character_size = character.get_rect().size #캐릭터 이미지 사이즈 구하기
 character_width = character_size[0] #캐릭터 가로 크기
 character_height = character_size[1] #캐릭터 세로 크기
@@ -34,7 +34,7 @@ character_speed = 0.5
 to_x = 0
 to_y = 0
 # 무기 (플레이어용)
-gun = pygame.image.load("pygame_project/images/gun.png")
+gun = pygame.image.load("images/gun.png")
 gun_size = gun.get_rect().size
 gun_width = gun_size[0]
 gun_height = gun_size[1]
@@ -42,7 +42,7 @@ gun_x_pos = character_x_pos + character_width / 2
 gun_y_pos = character_y_pos + character_height / 2
 
 # 무기 (발사 구현용)
-weapon = pygame.image.load("pygame_project/images/weapon.png")
+weapon = pygame.image.load("images/weapon.png")
 weapon_size = weapon.get_rect().size
 weapon_width = weapon_size[0]
 
