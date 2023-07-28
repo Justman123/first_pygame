@@ -2,7 +2,7 @@ import pygame
 
 # 파이 게임 초기화
 pygame.init()
-
+#수정
 # 화면 크기 설정
 screen_height = 744
 screen_width = 1022
