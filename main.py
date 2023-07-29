@@ -1,4 +1,5 @@
 import pygame
+import math
 
 # 파이 게임 초기화
 pygame.init()
@@ -45,14 +46,18 @@ gun_y_pos = character_y_pos + character_height / 2
 weapon = pygame.image.load("images/weapon.png")
 weapon_size = weapon.get_rect().size
 weapon_width = weapon_size[0]
+weapon_height = weapon_size[1]
 
 # 무기는 한 번에 여러 발 발사 가능
 weapons = []
 
 
-# 무기 이동 속도
+# 무기 이동 속도, 
 weapon_speed = 10
 
+# 총 회전 각도 변수
+gun_rotation_angle = 0
+gun_rotation_speed = 45
 # 공 만들기 (4개 크기에 대해 따로 처리)
 ball_imgs = [pygame.image.load("images/balloon1.png"),
              pygame.image.load("images/balloon2.png"),
@@ -72,6 +77,7 @@ balls.append({
     "to_x": 3, # x축 이동 방향
     "to_y": -6, # y축 이동 방향
     "init_spd_y": ball_speed_y[0]}) # 최초 이동 속도
+
 # FPS 설정
 clock = pygame.time.Clock()
 
@@ -94,15 +100,19 @@ while running:
                 to_x += character_speed
             elif event.key == pygame.K_UP:
                 to_y -= character_speed
+                if used_gun: # 총기 사용 가능일 때
+                    gun_rotation_angle += gun_rotation_speed # 30만큼 시계 방향으로
             elif event.key == pygame.K_DOWN:
                 to_y += character_speed
+                if used_gun: # 총기 사용 가능일 때
+                    gun_rotation_angle -= gun_rotation_speed # 30만큼 시계 방향으로
             elif event.key == pygame.K_SPACE: # 무기 발사
                 if used_gun != True:
                     print("G키를 눌러 총을 드세요!")
                 else:
                     print("빵!")
-                    weapon_x_pos = character_x_pos + (character_width / 2) - (weapon_width / 2)
-                    weapon_y_pos = character_y_pos
+                    weapon_x_pos = gun_x_pos + (gun_width / 2) - (weapon_width / 2) + math.cos(math.radians(gun_rotation_angle)) * (gun_width / 2)
+                    weapon_y_pos = gun_y_pos + (gun_height / 2) - (weapon_height / 2) - math.sin(math.radians(gun_rotation_angle)) * (gun_width / 2)
                     weapons.append([weapon_x_pos, weapon_y_pos])
 
             elif event.key == pygame.K_g:
@@ -120,12 +130,14 @@ while running:
     character_x_pos += to_x * dt
     character_y_pos += to_y * dt
     gun_x_pos += to_x * dt
-
+    
     #왼쪽, 오른쪽 경계 정하기
     if character_x_pos < 0:
         character_x_pos = 0
+        gun_x_pos = 0 + character_width / 2
     elif character_x_pos > screen_width - character_width:
         character_x_pos = screen_width - character_width
+        gun_x_pos = screen_width - character_width + 13
 
     #위, 아래쪽 경계 정하기
     if character_y_pos < screen_height - character_height - stage_height:
@@ -134,7 +146,13 @@ while running:
         character_y_pos = screen_height - character_height - stage_height
 
     # 무기 위치 조정
-    weapons = [[w[0], w[1] - weapon_speed] for w in weapons] # 무기 위치를 위로 올림
+    for w in weapons:
+        print("{0}도".format(gun_rotation_angle))
+        weapon_xd = math.sin(math.radians(gun_rotation_angle+90)) * weapon_speed
+        weapon_yd = math.cos(math.radians(gun_rotation_angle+90)) * weapon_speed
+        w[0] += weapon_xd
+        w[1] += weapon_yd
+        # weapons = [[w[0], w[1] - weapon_speed] for w in weapons] # 무기 위치를 위로 올림
     # 천장에 닿은 무기 없애기
     weapons = [[w[0], w[1]] for w in weapons if w[1]  > 0] 
 
@@ -215,7 +233,13 @@ while running:
     screen.blit(stage, (0, screen_height - stage_height))
     screen.blit(character, (character_x_pos, character_y_pos))
     if (used_gun == True):
-        screen.blit(gun, (gun_x_pos, gun_y_pos))
+        gun_rotated_image = pygame.transform.rotate(gun, gun_rotation_angle)
+        # gun_rotated_rect = gun_rotated_image.get_rect(center=(gun_x_pos + gun_width / 2, gun_y_pos + gun_height / 2))
+        # screen.blit(gun_rotated_image, (gun_x_pos, gun_y_pos))
+        screen.blit(gun_rotated_image, (gun_x_pos + gun_width / 2 - gun_rotated_image.get_width() / 2,
+        gun_y_pos + gun_height / 2 - gun_rotated_image.get_height() / 2))
+
+        # screen.blit(gun, (gun_x_pos, gun_y_pos))
     pygame.display.update()
 
 
