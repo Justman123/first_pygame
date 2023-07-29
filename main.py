@@ -57,6 +57,7 @@ weapon_speed = 10
 
 # 총 회전 각도 변수
 gun_rotation_angle = 0
+gun_rotation_angles = []
 gun_rotation_speed = 45
 # 공 만들기 (4개 크기에 대해 따로 처리)
 ball_imgs = [pygame.image.load("images/balloon1.png"),
@@ -96,7 +97,9 @@ while running:
         if event.type == pygame.KEYDOWN: # 키 누름 이벤트
             if event.key == pygame.K_LEFT:
                 to_x -= character_speed
+                gun_rotation_angle = 180
             elif event.key == pygame.K_RIGHT:
+                gun_rotation_angle = 360
                 to_x += character_speed
             elif event.key == pygame.K_UP:
                 to_y -= character_speed
@@ -113,6 +116,7 @@ while running:
                     print("빵!")
                     weapon_x_pos = gun_x_pos + (gun_width / 2) - (weapon_width / 2) + math.cos(math.radians(gun_rotation_angle)) * (gun_width / 2)
                     weapon_y_pos = gun_y_pos + (gun_height / 2) - (weapon_height / 2) - math.sin(math.radians(gun_rotation_angle)) * (gun_width / 2)
+                    gun_rotation_angles.append(gun_rotation_angle)
                     weapons.append([weapon_x_pos, weapon_y_pos])
 
             elif event.key == pygame.K_g:
@@ -144,18 +148,31 @@ while running:
         character_y_pos = screen_height - character_height - stage_height
     elif character_y_pos > screen_height - character_height - stage_height:
         character_y_pos = screen_height - character_height - stage_height
-
+    weapons_to_remove = []
     # 무기 위치 조정
-    for w in weapons:
+    for w_idx, w in enumerate(weapons):
         print("{0}도".format(gun_rotation_angle))
-        weapon_xd = math.sin(math.radians(gun_rotation_angle+90)) * weapon_speed
-        weapon_yd = math.cos(math.radians(gun_rotation_angle+90)) * weapon_speed
+        weapon_xd = math.sin(math.radians(gun_rotation_angles[w_idx]+90)) * weapon_speed
+        weapon_yd = math.cos(math.radians(gun_rotation_angles[w_idx]+90)) * weapon_speed
         w[0] += weapon_xd
-        w[1] += weapon_yd
+        w[1] += weapon_yd 
+        if w[1] < 0: # 천장에 닿았을 때
+            weapons_to_remove.append(w_idx)
+        elif w[1] > screen_height - stage_height: # 스테이지에 닿았을 때
+            weapons_to_remove.append(w_idx)
+        elif w[0] < 0:
+            weapons_to_remove.append(w_idx)
+        elif w[0] > screen_width:
+            weapons_to_remove.append(w_idx)
+        
+        #     print("조건1")
+        # if ((w[1] < screen_height - stage_height) and (0 < w[0] < screen_width - weapon_width)): 
+        #     weapons_to_remove.append(w_idx)
+        #     print("조건2")
         # weapons = [[w[0], w[1] - weapon_speed] for w in weapons] # 무기 위치를 위로 올림
-    # 천장에 닿은 무기 없애기
-    weapons = [[w[0], w[1]] for w in weapons if w[1]  > 0] 
-
+    #     # 천장에 닿은 무기 없애기 
+    # weapons = [[w[0], w[1]] for w in weapons if w[1]  > 0] 
+    # weapons = [[w[0], w[1]] for w in weapons if ]
     # 공 위치 정의
     for ball_idx, ball_val in enumerate(balls):
         ball_pos_x = ball_val["pos_x"]
@@ -240,6 +257,12 @@ while running:
         gun_y_pos + gun_height / 2 - gun_rotated_image.get_height() / 2))
 
         # screen.blit(gun, (gun_x_pos, gun_y_pos))
+     
+    for idx in reversed(weapons_to_remove):
+        print("없앨 공", idx)
+        del weapons[idx]
+        del gun_rotation_angles[idx]
+
     pygame.display.update()
 
 
