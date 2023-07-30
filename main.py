@@ -33,6 +33,7 @@ character_speed = 0.5
 # 이동 좌표
 to_x = 0
 to_y = 0
+
 # 무기 (플레이어용)
 gun = pygame.image.load("images/gun.png")
 gun_size = gun.get_rect().size
